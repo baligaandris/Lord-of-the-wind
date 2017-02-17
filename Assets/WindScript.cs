@@ -9,6 +9,8 @@ public class WindScript : MonoBehaviour {
     private float countDownTimer;
     public float countDownMax = 3f;
 
+    public Text inputText;
+
     public float coverTolerance = 2f;
 
     public Text countDownTimerText;
@@ -32,11 +34,18 @@ public class WindScript : MonoBehaviour {
         countDownTimer -= Time.deltaTime;
         rotationCoolDown -= Time.deltaTime;
         //if the player presses the wind rotator buttons and the cooldown for rotating is under 0
-        if (Input.GetAxis("Windrotator") != 0 && rotationCoolDown <= 0) {
+        if (Input.GetAxis("Windrotator X") > 0.01 || Input.GetAxis("Windrotator Y") > 0.01 || Input.GetAxis("Windrotator X") < - 0.01 || Input.GetAxis("Windrotator Y") < -0.01 /*&& rotationCoolDown <= 0*/) {
             //rotate the wind direction and UI indicator by given degree
-            windDirection = Quaternion.AngleAxis(rotateBy * Mathf.Sign(Input.GetAxis("Windrotator")), Vector3.forward)*windDirection;
-            Vector3 oldWindIndicatorRotation = windDirIndicator.transform.rotation.eulerAngles;
-            windDirIndicator.transform.rotation = Quaternion.Euler(new Vector3(oldWindIndicatorRotation.x, oldWindIndicatorRotation.y, oldWindIndicatorRotation.z+(rotateBy * Mathf.Sign(Input.GetAxis("Windrotator")))));
+
+            inputText.GetComponent<Text>().text = ("X: "+Input.GetAxis("Windrotator X").ToString() + " Y: " +Input.GetAxis("Windrotator Y").ToString());
+
+            windDirection = new Vector2(Input.GetAxis("Windrotator X"), Input.GetAxis("Windrotator Y")) /*Quaternion.AngleAxis(rotateBy * Mathf.Sign(Input.GetAxis("Windrotator X")), Vector3.forward)*windDirection*/;
+            windDirection = windDirection.normalized;
+
+            
+
+            windDirIndicator.transform.eulerAngles = new Vector3(windDirIndicator.transform.eulerAngles.x, windDirIndicator.transform.eulerAngles.y, Mathf.Atan2(-windDirection.x, windDirection.y) * Mathf.Rad2Deg);
+
             rotationCoolDown = rotationCoolDownMax;
         }
         
